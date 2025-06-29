@@ -1,7 +1,7 @@
 <?php
 
 /*
-Plugin Name: Offerings, Proposals, and Requests
+Plugin Name: Fellow Plugin
 Description: Backend for the Fellow social network
 Author: Fellow
 Version: 1.0.0
@@ -9,6 +9,19 @@ Text Domain: fellow-plugin
 */
 
 const FELLOW_DOMAIN = 'fellow-plugin';
+
+const ADMIN_OFFERING_CAPABILITIES = array(
+    'edit_offerings',
+    'edit_others_offerings',
+    'delete_offerings',
+    'publish_offerings',
+    'read_private_offerings',
+    'delete_private_offerings',
+    'delete_published_offerings',
+    'delete_others_offerings',
+    'edit_private_offerings',
+    'edit_published_offerings',
+);
 
 /**
  * Registers all the custom post types used by the Offerings, Proposals, and Requests plugin
@@ -57,36 +70,63 @@ function fellow_register_custom_post_types()
         'taxonomies' => array(
             'category'
         ),
+        'capability_type' => array('offering', 'offerings'),
+        'map_meta_cap' => true,
     );
+
     register_post_type('fellow_offering', $offering_options);
+
 }
 
 add_action('init', 'fellow_register_custom_post_types');
 
-/**
- * Flushes permalink rewrite rules after registering custom post types
- * @return void
- */
-function fellow_flush_rewrite_rules()
+
+function fellow_add_capabilities()
 {
-    fellow_register_custom_post_types();
-    flush_rewrite_rules();
+    $role = get_role('administrator');
+    foreach (ADMIN_OFFERING_CAPABILITIES as $cap) {
+        $role->add_cap($cap);
+    }
 }
 
-register_activation_hook(__FILE__, 'fellow_flush_rewrite_rules');
+function fellow_add_roles()
+{
+    add_role('fellow_member', __('Fellow Member', FELLOW_DOMAIN), array(
+        'read' => true,
+        'edit_offerings' => true,
+        'delete_offerings' => true,
+        'publish_offerings' => true,
+        'read_private_offerings' => true,
+        'delete_private_offerings' => true,
+        'delete_published_offerings' => true,
+        'edit_private_offerings' => true,
+        'edit_published_offerings' => true,
+    ));
+}
+function fellow_activation_hook()
+{
+    fellow_add_roles();
+    fellow_add_capabilities();
+    fellow_register_custom_post_types();
+}
 
-// /**
-//  * Adds filter which watches for post permalinks with %author% and replaces it with the sanitized username of the author of the post
-//  * @param mixed $post_link e.g., /%author%/offerings/tarot-card-reading-for-weekly-guidance
-//  * @param mixed $id e.g., 34
-//  * @param mixed $leavename
-//  * @return array|string e.g., /tarotgal22/offerings/tarot-card-reading-for-weekly-guidance
-//  */
-// function fellow_custom_post_link_filter($post_link, $id, $leavename)
-// {
-//     $post = get_post($id);
-//     $author = get_userdata($post->post_author);
-//     return str_replace('%author%', $author->user_nicename, $post_link);
-// }
+register_activation_hook(__FILE__, 'fellow_activation_hook');
 
-// add_filter('post_type_link', 'fellow_custom_post_link_filter', 1, 3);
+
+function fellow_remove_roles() {
+    remove_role('member');
+}
+function fellow_remove_capabilities()
+{
+    $role = get_role('administrator');
+    foreach (ADMIN_OFFERING_CAPABILITIES as $cap) {
+        $role->remove_cap($cap);
+    }
+}
+function fellow_deactivation_hook()
+{
+    fellow_remove_roles();
+    fellow_remove_capabilities();
+}
+
+register_deactivation_hook(__FILE__, 'fellow_deactivation_hook');
