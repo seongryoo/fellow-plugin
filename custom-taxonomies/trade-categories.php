@@ -15,8 +15,14 @@ function fellow_register_trade_categories()
         'hierarchical' => true,
         'rewrite' => array('slug' => 'trade-category'),
         'show_in_rest' => true,
+        'capabilities'      => array(
+            'manage_terms'  => 'manage_trade_categories',
+            'edit_terms'    => 'edit_trade_categories',
+            'delete_terms'  => 'delete_trade_categories',
+            'assign_terms'  => 'assign_trade_categories'
+        )
     );
-    register_taxonomy('fellow_trade_category', 'fellow_offer', $cat_args);
+    register_taxonomy('fellow_trade_category', array('fellow_request', 'fellow_offer'), $cat_args);
 }
 
 function fellow_insert_default_trade_categories()

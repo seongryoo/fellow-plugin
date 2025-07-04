@@ -28,6 +28,22 @@ const ADMIN_OFFER_CAPABILITIES = array(
     'delete_others_offers',
     'edit_private_offers',
     'edit_published_offers',
+
+    'edit_requests',
+    'edit_others_requests',
+    'delete_requests',
+    'publish_requests',
+    'read_private_requests',
+    'delete_private_requests',
+    'delete_published_requests',
+    'delete_others_requests',
+    'edit_private_requests',
+    'edit_published_requests',
+
+    'manage_trade_categories',
+    'edit_trade_categories',
+    'delete_trade_categories',
+    'assign_trade_categories'
 );
 
 function fellow_init_actions()
@@ -59,13 +75,22 @@ function fellow_add_roles()
         'delete_published_offers' => true,
         'edit_private_offers' => true,
         'edit_published_offers' => true,
+        'edit_requests' => true,
+        'delete_requests' => true,
+        'publish_requests' => true,
+        'read_private_requests' => true,
+        'delete_private_requests' => true,
+        'delete_published_requests' => true,
+        'edit_private_requests' => true,
+        'edit_published_requests' => true,
+        'assign_trade_categories' => true,
     ));
 }
 function fellow_activation_hook()
 {
+    fellow_register_custom_post_types();
     fellow_add_roles();
     fellow_add_capabilities();
-    fellow_register_custom_post_types();
 }
 
 register_activation_hook(__FILE__, 'fellow_activation_hook');
@@ -73,7 +98,7 @@ register_activation_hook(__FILE__, 'fellow_activation_hook');
 
 function fellow_remove_roles()
 {
-    remove_role('member');
+    remove_role('fellow_member');
 }
 function fellow_remove_capabilities()
 {
