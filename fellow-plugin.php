@@ -8,9 +8,11 @@ Version: 1.0.0
 Text Domain: fellow-plugin
 */
 
-define('PLUGIN_DIR', dirname(__FILE__) . '/');
+require_once(plugin_dir_path(__FILE__) . 'default-pages.php');
 
-require_once(PLUGIN_DIR . 'default-pages.php');
+require_once(plugin_dir_path(__FILE__) . 'custom-post-types/custom-post-types.php');
+
+require_once(plugin_dir_path(__FILE__) . 'custom-taxonomies/custom-taxonomies.php');
 
 
 register_activation_hook(__FILE__, 'add_required_pages_on_activation');
@@ -28,41 +30,10 @@ const ADMIN_OFFER_CAPABILITIES = array(
     'edit_published_offers',
 );
 
-/**
- * Registers all the custom post types used by the Offers, Proposals, and Requests plugin
- * @return void
- */
-function fellow_register_custom_post_types()
-{
-    $offer_labels = array(
-        'name' => _x('Offers', 'Post type general name', 'fellow_plugin'),
-        'singular_name' => _x('Offer', 'Post type singular name', 'fellow_plugin'),    );
-    $offer_options = array(
-        'labels' => $offer_labels,
-        'public' => true,
-        'has_archive' => true,
-        'rewrite' => array(
-            'slug' => 'offers',
-        ),
-        'supports' => array(
-            'title',
-            'editor',
-            'author'
-        ),
-        'taxonomies' => array(
-            'category'
-        ),
-        'capability_type' => array('offer', 'offers'),
-        'map_meta_cap' => true,
-    );
-
-    register_post_type('fellow_offer', $offer_options);
-
-}
-
 function fellow_init_actions()
 {
     fellow_register_custom_post_types();
+    fellow_register_custom_taxonomies();
 }
 
 add_action('init', 'fellow_init_actions');
